@@ -64,7 +64,7 @@ func (s *Server) handlePostProxy(c *fiber.Ctx, path string) error {
 	if err != nil {
 		return fiber.ErrUnprocessableEntity
 	}
-	return c.Send(body)
+	return c.Status(resp.StatusCode).Send(body)
 }
 
 type Server struct {
