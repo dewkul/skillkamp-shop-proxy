@@ -23,6 +23,8 @@ func (s *Server) Start() error {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 	app.Get("/v1/api/filters", s.handleGetFilters)
+	app.Get("/v1/api/products", s.handleGetProducts)
+	app.Get("/v1/api/products/new_arrivals", s.handleGetNewArrival)
 	app.Post("/v1/api/auth/login", s.handlePostLogin)
 	app.Post("/v1/api/auth/signup", s.handlePostSignup)
 	return app.Listen(s.listenAddr)
@@ -30,6 +32,14 @@ func (s *Server) Start() error {
 
 func (s *Server) handleGetFilters(c *fiber.Ctx) error {
 	return s.handleGetProxy(c, "/v1/api/filters")
+}
+
+func (s *Server) handleGetProducts(c *fiber.Ctx) error {
+	return s.handleGetProxy(c, "/v1/api/products")
+}
+
+func (s *Server) handleGetNewArrival(c *fiber.Ctx) error {
+	return s.handleGetProxy(c, "/v1/api/products/new_arrivals")
 }
 
 func (s *Server) handlePostLogin(c *fiber.Ctx) error {
