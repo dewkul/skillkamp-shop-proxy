@@ -27,6 +27,9 @@ func (s *Server) Start() error {
 	app.Get("/v1/api/products/new_arrivals", s.handleGetNewArrival)
 	app.Post("/v1/api/auth/login", s.handlePostLogin)
 	app.Post("/v1/api/auth/signup", s.handlePostSignup)
+	app.Get("/v1/api/cart", s.handleGetItemsInCart)
+	app.Post("/v1/api/cart", s.handleAddItemsInCart)
+
 	return app.Listen(s.listenAddr)
 }
 
@@ -48,6 +51,14 @@ func (s *Server) handlePostLogin(c *fiber.Ctx) error {
 
 func (s *Server) handlePostSignup(c *fiber.Ctx) error {
 	return s.handlePostProxy(c, "/v1/api/auth/signup")
+}
+
+func (s *Server) handleGetItemsInCart(c *fiber.Ctx) error {
+	return s.handleGetProxy(c, "/v1/api/cart")
+}
+
+func (s *Server) handleAddItemsInCart(c *fiber.Ctx) error {
+	return s.handlePostProxy(c, "/v1/api/cart")
 }
 
 func (s *Server) handleGetProxy(c *fiber.Ctx, path string) error {
