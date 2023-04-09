@@ -29,6 +29,7 @@ func (s *Server) Start() error {
 	app.Post("/v1/api/auth/signup", s.handlePostSignup)
 	app.Get("/v1/api/cart", s.handleGetItemsInCart)
 	app.Post("/v1/api/cart", s.handleAddItemsInCart)
+	app.Get("/v1/api/products/details/:sku", s.handleGetProductInfo)
 
 	return app.Listen(s.listenAddr)
 }
@@ -61,6 +62,10 @@ func (s *Server) handleAddItemsInCart(c *fiber.Ctx) error {
 	return s.handlePostProxy(c, "/v1/api/cart")
 }
 
+func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
+	return s.handleGetProxy(c, "/v1/api/products/details/"+c.Params("sku"))
+}
+
 func (s *Server) handleGetProxy(c *fiber.Ctx, path string) error {
 	resp, err := http.Get(s.serverUrl + path)
 	if err != nil {
@@ -71,7 +76,7 @@ func (s *Server) handleGetProxy(c *fiber.Ctx, path string) error {
 	if err != nil {
 		return fiber.ErrUnprocessableEntity
 	}
-	return c.Send(body)
+	return c.Status(resp.StatusCode).Send(body)
 }
 
 func (s *Server) handlePostProxy(c *fiber.Ctx, path string) error {
