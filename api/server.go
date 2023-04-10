@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -39,7 +40,12 @@ func (s *Server) handleGetFilters(c *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetProducts(c *fiber.Ctx) error {
-	return s.handleGetProxy(c, "/v1/api/products")
+	queryStrBytes := c.Request().URI().QueryString()
+	path := []string{"/v1/api/products"}
+	if len(queryStrBytes) > 0 {
+		path = append(path, string(queryStrBytes))
+	}
+	return s.handleGetProxy(c, strings.Join(path, "?"))
 }
 
 func (s *Server) handleGetNewArrival(c *fiber.Ctx) error {
