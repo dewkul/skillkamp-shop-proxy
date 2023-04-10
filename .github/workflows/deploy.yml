@@ -25,7 +25,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ GHCR_OWNER }}
+          username: ${{ env.GHCR_OWNER }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
@@ -46,4 +46,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ GHCR_OWNER }}/${{ REPO_NAME }}:${{ env.VERSION }}
+            ghcr.io/${{ env.GHCR_OWNER }}/${{ env.REPO_NAME }}:${{ env.VERSION }}
