@@ -27,7 +27,7 @@ func (s *Server) Start() error {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: s.allowOrigins,
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 	app.Get("/v1/api/filters", s.handleGetFilters)
 	app.Get("/v1/api/products", s.handleGetProducts)
