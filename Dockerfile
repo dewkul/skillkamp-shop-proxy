@@ -18,6 +18,8 @@ WORKDIR /app
 ARG API_VERSION
 ENV VERSION ${API_VERSION}
 
+# copy ca certificate.crt from the build stage
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/proxy /app
 
 EXPOSE 3030
