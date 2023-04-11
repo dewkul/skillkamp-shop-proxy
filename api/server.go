@@ -42,7 +42,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleGetFilters(c *fiber.Ctx) error {
-	return s.handleGetProxy(c, "/v1/api/filters")
+	return s.handleProxy(c, "GET", "/v1/api/filters")
 }
 
 func (s *Server) handleGetProducts(c *fiber.Ctx) error {
@@ -51,64 +51,66 @@ func (s *Server) handleGetProducts(c *fiber.Ctx) error {
 	if len(queryStrBytes) > 0 {
 		path = append(path, string(queryStrBytes))
 	}
-	return s.handleGetProxy(c, strings.Join(path, "?"))
+	return s.handleProxy(c, "GET", strings.Join(path, "?"))
 }
 
 func (s *Server) handleGetNewArrival(c *fiber.Ctx) error {
-	return s.handleGetProxy(c, "/v1/api/products/new_arrivals")
+	return s.handleProxy(c, "GET", "/v1/api/products/new_arrivals")
 }
 
 func (s *Server) handlePostLogin(c *fiber.Ctx) error {
-	return s.handlePostProxy(c, "/v1/api/auth/login")
+	return s.handleProxy(c, "POST", "/v1/api/auth/login")
 }
 
 func (s *Server) handlePostSignup(c *fiber.Ctx) error {
-	return s.handlePostProxy(c, "/v1/api/auth/signup")
+	return s.handleProxy(c, "POST", "/v1/api/auth/signup")
 }
 
 func (s *Server) handleGetItemsInCart(c *fiber.Ctx) error {
-	return s.handleGetProxy(c, "/v1/api/cart")
+	return s.handleProxy(c, "GET", "/v1/api/cart")
 }
 
 func (s *Server) handleAddItemsInCart(c *fiber.Ctx) error {
-	return s.handlePostProxy(c, "/v1/api/cart")
+	return s.handleProxy(c, "POST", "/v1/api/cart")
 }
 
 func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
-	return s.handleGetProxy(c, "/v1/api/products/details/"+c.Params("sku"))
+	return s.handleProxy(c, "GET", "/v1/api/products/details/"+c.Params("sku"))
 }
 
-func (s *Server) handleGetProxy(c *fiber.Ctx, path string) error {
-	log.Debug().Str("path", path).Msg("handle get proxy request")
-	resp, err := http.Get(s.serverUrl + path)
-	if err != nil {
-		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("GET: Upstream connection error")
-		return fiber.ErrBadGateway
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("GET: Read resp body error")
-		return fiber.ErrUnprocessableEntity
-	}
-	log.Debug().Str("path", path).Int("status", resp.StatusCode).Msg("GET: response")
-	return c.Status(resp.StatusCode).Send(body)
-}
+func (s *Server) handleProxy(c *fiber.Ctx, method, path string) error {
+	log.Debug().Str("method", method).Str("path", path).Msg("handle proxy request")
+	client := http.Client{}
 
-func (s *Server) handlePostProxy(c *fiber.Ctx, path string) error {
+	headers := c.GetReqHeaders()
+	auth := headers["Authorization"]
+
 	reqBody := bytes.NewBuffer(c.Body())
-	resp, err := http.Post(s.serverUrl+path, "application/json", reqBody)
+
+	req, err := http.NewRequest(method, s.serverUrl+path, reqBody)
 	if err != nil {
-		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("POST: Upstream connection error")
+		log.Error().Err(err).Str("method", method).Str("path", path).Str("upstream", s.serverUrl).Msg("Build new request error")
+		return fiber.ErrBadRequest
+	}
+
+	if auth != "" {
+		req.Header.Set("Authorization", auth)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Warn().Err(err).Str("method", method).Str("path", path).Str("upstream", s.serverUrl).Msg("Upstream connection error")
 		return fiber.ErrBadGateway
 	}
+
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("POST: Read resp body error")
+		log.Warn().Err(err).Str("method", method).Str("path", path).Str("upstream", s.serverUrl).Msg("Read resp body error")
 		return fiber.ErrUnprocessableEntity
 	}
-	log.Debug().Str("path", path).Int("status", resp.StatusCode).Msg("POST: response")
+
+	log.Debug().Str("method", method).Str("path", path).Int("status", resp.StatusCode).Msg("response")
 	return c.Status(resp.StatusCode).Send(body)
 }
 
