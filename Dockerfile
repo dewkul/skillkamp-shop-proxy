@@ -20,4 +20,4 @@ COPY --from=builder /app/proxy /app
 EXPOSE 3030
 
 # Run
-ENTRYPOINT ["/proxy"]
+ENTRYPOINT ["/app/proxy"]
