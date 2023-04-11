@@ -38,12 +38,15 @@ jobs:
           [ "$VERSION" == "main" ] && VERSION=latest
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - id: commit
+        uses: pr-mpt/actions-commit-hash@v2
+
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           build-args: |
-            "API_VERSION=${{ env.VERSION }}-${{ env.GITHUB_SHA }}"
+            "API_VERSION=${{ env.VERSION }}-${{ steps.commit.outputs.short }}"
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
