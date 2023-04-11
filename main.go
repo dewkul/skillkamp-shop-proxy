@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/dewkul/skillkamp-shop-proxy/api"
 	"github.com/rs/zerolog"
@@ -15,6 +17,17 @@ func main() {
 	listenAddr := flag.String("listen", ":3030", "Listen address")
 	serverUrl := flag.String("server", "https://skillkamp-api.com", "Upstream server URL")
 	flag.Parse()
+
+	logLevel := os.Getenv("LOG_LEVEL")
+
+	switch level := strings.ToUpper(logLevel); level {
+	case "DEBUG":
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case "INFO":
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	}
 
 	server := api.NewServer(*listenAddr, *serverUrl)
 	fmt.Println("server is listening on port ", *listenAddr)

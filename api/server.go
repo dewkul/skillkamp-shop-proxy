@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/rs/zerolog/log"
 )
 
 func NewServer(listenAddr string, upstream string) *Server {
@@ -73,15 +74,19 @@ func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetProxy(c *fiber.Ctx, path string) error {
+	log.Debug().Str("path", path).Msg("handle get proxy request")
 	resp, err := http.Get(s.serverUrl + path)
 	if err != nil {
+		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("GET: Upstream connection error")
 		return fiber.ErrBadGateway
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("GET: Read resp body error")
 		return fiber.ErrUnprocessableEntity
 	}
+	log.Debug().Str("path", path).Int("status", resp.StatusCode).Msg("GET: response")
 	return c.Status(resp.StatusCode).Send(body)
 }
 
@@ -89,13 +94,16 @@ func (s *Server) handlePostProxy(c *fiber.Ctx, path string) error {
 	reqBody := bytes.NewBuffer(c.Body())
 	resp, err := http.Post(s.serverUrl+path, "application/json", reqBody)
 	if err != nil {
+		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("POST: Upstream connection error")
 		return fiber.ErrBadGateway
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Warn().Err(err).Str("path", path).Str("upstream", s.serverUrl).Msg("POST: Read resp body error")
 		return fiber.ErrUnprocessableEntity
 	}
+	log.Debug().Str("path", path).Int("status", resp.StatusCode).Msg("POST: response")
 	return c.Status(resp.StatusCode).Send(body)
 }
 
