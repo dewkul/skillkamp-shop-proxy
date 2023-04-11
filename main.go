@@ -19,6 +19,7 @@ func main() {
 	flag.Parse()
 
 	logLevel := os.Getenv("LOG_LEVEL")
+	version := os.Getenv("VERSION")
 
 	switch level := strings.ToUpper(logLevel); level {
 	case "DEBUG":
@@ -29,7 +30,7 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.WarnLevel)
 	}
 
-	server := api.NewServer(*listenAddr, *serverUrl)
+	server := api.NewServer(*listenAddr, *serverUrl, version)
 	fmt.Println("server is listening on port ", *listenAddr)
 	log.Fatal().Err(server.Start())
 }

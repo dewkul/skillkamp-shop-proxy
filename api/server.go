@@ -11,10 +11,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewServer(listenAddr string, upstream string) *Server {
+func NewServer(listenAddr, upstream, version string) *Server {
+	if version == "" {
+		version = "dev"
+	}
 	return &Server{
 		listenAddr: listenAddr,
 		serverUrl:  upstream,
+		version:    version,
 	}
 }
 
@@ -32,6 +36,7 @@ func (s *Server) Start() error {
 	app.Get("/v1/api/cart", s.handleGetItemsInCart)
 	app.Post("/v1/api/cart", s.handleAddItemsInCart)
 	app.Get("/v1/api/products/details/:sku", s.handleGetProductInfo)
+	app.Get("/ver", s.handleGetVersion)
 
 	return app.Listen(s.listenAddr)
 }
@@ -107,7 +112,19 @@ func (s *Server) handlePostProxy(c *fiber.Ctx, path string) error {
 	return c.Status(resp.StatusCode).Send(body)
 }
 
+func (s *Server) handleGetVersion(c *fiber.Ctx) error {
+	resp := VersionResponse{
+		Version: s.version,
+	}
+	return c.JSON(resp)
+}
+
+type VersionResponse struct {
+	Version string `json:"version"`
+}
+
 type Server struct {
 	listenAddr string
 	serverUrl  string
+	version    string
 }

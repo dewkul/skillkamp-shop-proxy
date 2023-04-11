@@ -15,6 +15,9 @@ FROM scratch
 
 WORKDIR /app
 
+ARG API_VERSION
+ENV VERSION ${API_VERSION}
+
 COPY --from=builder /app/proxy /app
 
 EXPOSE 3030

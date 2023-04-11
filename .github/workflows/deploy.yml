@@ -42,6 +42,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          build-args: |
+            "API_VERSION=${{ env.VERSION }}-${{ env.GITHUB_SHA }}"
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
