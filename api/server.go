@@ -11,21 +11,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewServer(listenAddr, upstream, version string) *Server {
+func NewServer(listenAddr, upstream, version, origins string) *Server {
 	if version == "" {
 		version = "dev"
 	}
 	return &Server{
-		listenAddr: listenAddr,
-		serverUrl:  upstream,
-		version:    version,
+		listenAddr:   listenAddr,
+		serverUrl:    upstream,
+		version:      version,
+		allowOrigins: origins,
 	}
 }
 
 func (s *Server) Start() error {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173",
+		AllowOrigins: s.allowOrigins,
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 	app.Get("/v1/api/filters", s.handleGetFilters)
@@ -35,6 +36,8 @@ func (s *Server) Start() error {
 	app.Post("/v1/api/auth/signup", s.handlePostSignup)
 	app.Get("/v1/api/cart", s.handleGetItemsInCart)
 	app.Post("/v1/api/cart", s.handleAddItemsInCart)
+	app.Put("/v1/api/cart", s.handleUpdateItemsInCart)
+	app.Delete("/v1/api/cart", s.handleRemoveItemsInCart)
 	app.Get("/v1/api/products/details/:sku", s.handleGetProductInfo)
 	app.Get("/ver", s.handleGetVersion)
 
@@ -72,6 +75,14 @@ func (s *Server) handleGetItemsInCart(c *fiber.Ctx) error {
 
 func (s *Server) handleAddItemsInCart(c *fiber.Ctx) error {
 	return s.handleProxy(c, "POST", "/v1/api/cart")
+}
+
+func (s *Server) handleUpdateItemsInCart(c *fiber.Ctx) error {
+	return s.handleProxy(c, "PUT", "/v1/api/cart")
+}
+
+func (s *Server) handleRemoveItemsInCart(c *fiber.Ctx) error {
+	return s.handleProxy(c, "DELETE", "/v1/api/cart")
 }
 
 func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
@@ -126,7 +137,8 @@ type VersionResponse struct {
 }
 
 type Server struct {
-	listenAddr string
-	serverUrl  string
-	version    string
+	listenAddr   string
+	serverUrl    string
+	version      string
+	allowOrigins string
 }
