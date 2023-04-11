@@ -20,6 +20,10 @@ func main() {
 
 	logLevel := os.Getenv("LOG_LEVEL")
 	version := os.Getenv("VERSION")
+	origins := os.Getenv("ALLOW_ORIGINS")
+	if origins == "" {
+		origins = "http://localhost:5173"
+	}
 
 	switch level := strings.ToUpper(logLevel); level {
 	case "DEBUG":
@@ -30,7 +34,7 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.WarnLevel)
 	}
 
-	server := api.NewServer(*listenAddr, *serverUrl, version)
+	server := api.NewServer(*listenAddr, *serverUrl, version, origins)
 	fmt.Println("server is listening on port ", *listenAddr)
 	log.Fatal().Err(server.Start())
 }
