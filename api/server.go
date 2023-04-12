@@ -39,6 +39,8 @@ func (s *Server) Start() error {
 	app.Put("/v1/api/cart", s.handleUpdateItemsInCart)
 	app.Delete("/v1/api/cart", s.handleRemoveItemsInCart)
 	app.Get("/v1/api/products/details/:sku", s.handleGetProductInfo)
+	app.Get("/v1/api/images/landing", s.handleGetLandingImage)
+	app.Get("/v1/api/images/story", s.handleGetStoryImage)
 	app.Get("/ver", s.handleGetVersion)
 
 	return app.Listen(s.listenAddr)
@@ -87,6 +89,14 @@ func (s *Server) handleRemoveItemsInCart(c *fiber.Ctx) error {
 
 func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
 	return s.handleProxy(c, "GET", "/v1/api/products/details/"+c.Params("sku"))
+}
+
+func (s *Server) handleGetLandingImage(c *fiber.Ctx) error {
+	return s.handleProxy(c, "GET", "/v1/api/images/landing")
+}
+
+func (s *Server) handleGetStoryImage(c *fiber.Ctx) error {
+	return s.handleProxy(c, "GET", "/v1/api/images/story")
 }
 
 func (s *Server) handleProxy(c *fiber.Ctx, method, path string) error {
