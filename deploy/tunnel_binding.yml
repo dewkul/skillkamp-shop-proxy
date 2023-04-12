@@ -1,0 +1,9 @@
+apiVersion: networking.cfargotunnel.com/v1alpha1
+kind: TunnelBinding
+metadata:
+  name: happy-kids-api-cluster-tunnel
+subjects:
+  - name: happy-kids-api
+tunnelRef:
+  kind: ClusterTunnel
+  name: kb-tunnel

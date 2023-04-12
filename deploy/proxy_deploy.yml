@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: proxy-shop
+  name: proxy-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy-shop
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: proxy-shop
+    spec:
+      containers:
+      - image: ghcr.io/dewkul/skillkamp-shop-proxy:0.2
+        name: skillkamp-shop-proxy
+        resources: 
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        env:
+          - name: LOG_LEVEL
+            value: debug
+          - name: ALLOW_ORIGINS
+            value: http://localhost:5173,https://skillkamp-shop.vercel.app,https://happy-kids.dewkul.me
+status: {}
