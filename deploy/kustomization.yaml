@@ -5,4 +5,5 @@ resources:
   - ns.yml
   - proxy_deploy.yml
   - proxy_svc.yml
-  - tunnel_binding.yml
+  - proxy_ing.yml
+  # - tunnel_binding.yml

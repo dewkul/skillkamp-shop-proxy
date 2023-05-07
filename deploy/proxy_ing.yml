@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/common-name: happy-kids-api.dewkul.me
+    cert-manager.io/private-key-algorithm: ECDSA
+    kubernetes.io/ingress.class: nginx
+  name: happy-kids-proxy
+  namespace: skillkamp
+spec:
+  rules:
+  - host: happy-kids-api.dewkul.me
+    http:
+      paths:
+        - backend:
+            service:
+              name: happy-kids-api
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  tls:
+  - hosts:
+    - happy-kids-api.dewkul.me
+    secretName:  happy-kids-api-dewkul-me-tls
