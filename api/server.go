@@ -29,30 +29,30 @@ func (s *Server) Start() error {
 		AllowOrigins: s.allowOrigins,
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
-	app.Get("/v1/api/filters", s.handleGetFilters)
-	app.Get("/v1/api/products", s.handleGetProducts)
-	app.Get("/v1/api/products/new_arrivals", s.handleGetNewArrival)
-	app.Post("/v1/api/auth/login", s.handlePostLogin)
-	app.Post("/v1/api/auth/signup", s.handlePostSignup)
-	app.Get("/v1/api/cart", s.handleGetItemsInCart)
-	app.Post("/v1/api/cart", s.handleAddItemsInCart)
-	app.Put("/v1/api/cart", s.handleUpdateItemsInCart)
-	app.Delete("/v1/api/cart", s.handleRemoveItemsInCart)
-	app.Get("/v1/api/products/details/:sku", s.handleGetProductInfo)
-	app.Get("/v1/api/images/landing", s.handleGetLandingImage)
-	app.Get("/v1/api/images/story", s.handleGetStoryImage)
+	app.Get("/v2/filters", s.handleGetFilters)
+	app.Get("/v2/products", s.handleGetProducts)
+	app.Get("/v2/products/new_arrivals", s.handleGetNewArrival)
+	app.Post("/v2/auth/login", s.handlePostLogin)
+	app.Post("/v2/auth/signup", s.handlePostSignup)
+	app.Get("/v2/cart", s.handleGetItemsInCart)
+	app.Post("/v2/cart", s.handleAddItemsInCart)
+	app.Put("/v2/cart", s.handleUpdateItemsInCart)
+	app.Delete("/v2/cart", s.handleRemoveItemsInCart)
+	app.Get("/v2/products/details/:sku", s.handleGetProductInfo)
+	app.Get("/v2/images/landing", s.handleGetLandingImage)
+	app.Get("/v2/images/story", s.handleGetStoryImage)
 	app.Get("/ver", s.handleGetVersion)
 
 	return app.Listen(s.listenAddr)
 }
 
 func (s *Server) handleGetFilters(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/filters")
+	return s.handleProxy(c, "GET", "/products/filters")
 }
 
 func (s *Server) handleGetProducts(c *fiber.Ctx) error {
 	queryStrBytes := c.Request().URI().QueryString()
-	path := []string{"/v1/api/products"}
+	path := []string{"/products"}
 	if len(queryStrBytes) > 0 {
 		path = append(path, string(queryStrBytes))
 	}
@@ -60,43 +60,43 @@ func (s *Server) handleGetProducts(c *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetNewArrival(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/products/new_arrivals")
+	return s.handleProxy(c, "GET", "/products/new_arrivals")
 }
 
 func (s *Server) handlePostLogin(c *fiber.Ctx) error {
-	return s.handleProxy(c, "POST", "/v1/api/auth/login")
+	return s.handleProxy(c, "POST", "/auth/login")
 }
 
 func (s *Server) handlePostSignup(c *fiber.Ctx) error {
-	return s.handleProxy(c, "POST", "/v1/api/auth/signup")
+	return s.handleProxy(c, "POST", "/auth/signup")
 }
 
 func (s *Server) handleGetItemsInCart(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/cart")
+	return s.handleProxy(c, "GET", "/cart")
 }
 
 func (s *Server) handleAddItemsInCart(c *fiber.Ctx) error {
-	return s.handleProxy(c, "POST", "/v1/api/cart")
+	return s.handleProxy(c, "POST", "/cart")
 }
 
 func (s *Server) handleUpdateItemsInCart(c *fiber.Ctx) error {
-	return s.handleProxy(c, "PUT", "/v1/api/cart")
+	return s.handleProxy(c, "PUT", "/cart")
 }
 
 func (s *Server) handleRemoveItemsInCart(c *fiber.Ctx) error {
-	return s.handleProxy(c, "DELETE", "/v1/api/cart")
+	return s.handleProxy(c, "DELETE", "/cart")
 }
 
 func (s *Server) handleGetProductInfo(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/products/details/"+c.Params("sku"))
+	return s.handleProxy(c, "GET", "/products/details/"+c.Params("sku"))
 }
 
 func (s *Server) handleGetLandingImage(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/images/landing")
+	return s.handleProxy(c, "GET", "/images/landing")
 }
 
 func (s *Server) handleGetStoryImage(c *fiber.Ctx) error {
-	return s.handleProxy(c, "GET", "/v1/api/images/story")
+	return s.handleProxy(c, "GET", "/images/story")
 }
 
 func (s *Server) handleProxy(c *fiber.Ctx, method, path string) error {

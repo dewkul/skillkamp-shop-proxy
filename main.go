@@ -15,14 +15,18 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	listenAddr := flag.String("listen", ":3030", "Listen address")
-	serverUrl := flag.String("server", "https://skillkamp-api.com", "Upstream server URL")
 	flag.Parse()
 
 	logLevel := os.Getenv("LOG_LEVEL")
 	version := os.Getenv("VERSION")
 	origins := os.Getenv("ALLOW_ORIGINS")
+	serverUrl := os.Getenv("SERVER")
 	if origins == "" {
 		origins = "http://localhost:5173"
+	}
+
+	if serverUrl == "" {
+		serverUrl = "http://localhost:3000"
 	}
 
 	switch level := strings.ToUpper(logLevel); level {
@@ -34,7 +38,7 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.WarnLevel)
 	}
 
-	server := api.NewServer(*listenAddr, *serverUrl, version, origins)
+	server := api.NewServer(*listenAddr, serverUrl, version, origins)
 	fmt.Println("server is listening on port ", *listenAddr)
 	log.Fatal().Err(server.Start())
 }
